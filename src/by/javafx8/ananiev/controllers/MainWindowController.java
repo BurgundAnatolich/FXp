@@ -13,6 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import by.javafx8.ananiev.interfaces.impl.CollectionAdressBook;
+import javafx.stage.Window;
 
 import java.io.IOException;
 
@@ -39,6 +40,12 @@ public class MainWindowController {
     @FXML
     private Button mainAddButton;
 
+
+    private EditController editController;
+    private FXMLLoader fxmlLoader;
+    private Stage editDialogStage;
+    private Parent fxmlEdit;
+
     @FXML
     private void initialize() {
         tableColumnFIO.setCellValueFactory(new PropertyValueFactory<Person, String>("fio"));
@@ -55,6 +62,15 @@ public class MainWindowController {
 
         mainTable.setItems(adressBookImpl.getPersonArrayList());
 
+        try {
+            fxmlLoader.setLocation(getClass().getResource(""));
+            fxmlEdit = fxmlLoader.load();
+            editController = fxmlLoader.getController();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -62,7 +78,7 @@ public class MainWindowController {
         mainLabel.setText("Количество записей: " + adressBookImpl.getPersonArrayList().size());
     }
 
-    public void showDialog(ActionEvent actionEvent) {
+    public void actionButtonPressed(ActionEvent actionEvent) {
 
         // определение источника события с помощью метода getSource().
         Object sourse = actionEvent.getSource();
@@ -75,8 +91,13 @@ public class MainWindowController {
         // записываем в переменную clicedButton ссылку на нажатую кнопку.
         Button clicedButton = (Button) sourse;
 
-
+        // в переменную селектедПерсон записываем ссылку на объект выбранный в текущий момент
+        // при нажатии на кнопку
         Person selectedPerson = (Person) mainTable.getSelectionModel().getSelectedItem();
+
+        Window parentWindow = ((Node) sourse).getScene().getWindow();
+
+        editController.setPerson(selectedPerson);
 
         // по Id нажатой кнопки выволим дополнительную информацию
         // о выбранной во время нажатия строке таблицы
@@ -85,28 +106,28 @@ public class MainWindowController {
                 System.out.println("Add: " + selectedPerson);
                 break;
             case "mainEditButton":
-                System.out.println("Edit: " + selectedPerson);
+                showDialog(parentWindow);
                 break;
             case "mainDeleteButton":
                 System.out.println("Delete: " + selectedPerson);
                 break;
         }
 
-        try {
-            Stage stage = new Stage();
-            Parent root = FXMLLoader.load(getClass().getResource("../fxml/edit.fxml"));
-            stage.setTitle("Editor");
-            stage.setMinWidth(450);
-            stage.setMinHeight(100);
-            stage.setScene(new Scene(root));
-            stage.setResizable(false);
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+    }
+
+    private void showDialog(Window parentWindow) {
+
+        if (editDialogStage == null){
+            editDialogStage = new Stage();
+            editDialogStage.setTitle("Редактирование записей");
+            editDialogStage.setMinWidth(450);
+            editDialogStage.setMinHeight(100);
+            editDialogStage.setResizable(false);
+            editDialogStage.setScene(new Scene(fxmlEdit));
+            editDialogStage.initModality(Modality.WINDOW_MODAL);
+            editDialogStage.initOwner(parentWindow);
         }
 
-
+        editDialogStage.show();
     }
 }

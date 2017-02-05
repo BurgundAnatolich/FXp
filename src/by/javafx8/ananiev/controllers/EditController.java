@@ -1,5 +1,6 @@
 package by.javafx8.ananiev.controllers;
 
+import by.javafx8.ananiev.objects.Person;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -23,11 +24,21 @@ public class EditController {
     @FXML
     private Button editBtnCancel;
 
+    private Person person;
+
+
+    public void setPerson(Person person) {
+        this.person = person;
+        txtEditFIO.setText(person.getFio());
+        txtEditTelefon.setText(person.getPhone());
+    }
 
     public void actionClose(ActionEvent actionEvent) {
 
         Node source = (Node) actionEvent.getSource();
         Stage stage = (Stage) source.getScene().getWindow();
-        stage.close();
+        stage.hide();
     }
+
+
 }
